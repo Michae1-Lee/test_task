@@ -1,0 +1,44 @@
+services:
+  app:
+    build: .
+    command: ./test_task
+    networks:
+      - new
+    ports:
+      - '8080:8080'
+    depends_on:
+      - task_db
+    environment:
+        DB_HOST: task_db
+        DB_USER: admin
+        DB_PASSWORD: admin
+        DB_NAME: taskdb
+        DB_PORT: 5432
+  migrate:
+    image: migrate/migrate
+    networks:
+      - new
+    volumes:
+      - ./db/migrations:/migrations
+    command: [ "-path", "/migrations", "-database",  "postgres://admin:admin@task_db:5432/taskdb?sslmode=disable", "up", "2" ]
+    depends_on:
+      - task_db
+  task_db:
+    image: 'postgres:latest'
+    container_name: task_db
+    networks:
+      new:
+        aliases:
+          - database
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: taskdb
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+volumes:
+  postgres_data:
+networks:
+  new:

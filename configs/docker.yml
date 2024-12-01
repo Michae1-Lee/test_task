@@ -1,0 +1,9 @@
+address:
+  ":8080"
+
+postgres:
+  host: task_db
+  port: 5432
+  user: admin
+  password: admin
+  db_name: task_db

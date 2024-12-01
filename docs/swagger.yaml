@@ -1,0 +1,164 @@
+definitions:
+  domain.User:
+    properties:
+      email:
+        type: string
+      id:
+        type: string
+      password:
+        type: string
+    type: object
+  types.LoginReq:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  types.LoginResp:
+    properties:
+      access_token:
+        type: string
+      access_token_expires_at:
+        type: string
+      refresh_token:
+        type: string
+      refresh_token_expires_at:
+        type: string
+      sessionId:
+        type: string
+      user:
+        $ref: '#/definitions/domain.User'
+    type: object
+  types.RegisterRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  types.RenewAccessTokenReq:
+    properties:
+      refresh_token:
+        type: string
+    type: object
+  types.RenewAccessTokenResp:
+    properties:
+      access_token:
+        type: string
+      access_token_expires_at:
+        type: string
+    type: object
+info:
+  contact: {}
+  termsOfService: http://swagger.io/terms/
+  title: TestTask
+  version: "1.0"
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Аутентифицирует пользователя и возвращает access token и refresh
+        token.
+      parameters:
+      - description: Login credentials
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/types.LoginReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/types.LoginResp'
+        "400":
+          description: Bad request - invalid credentials or other errors
+          schema:
+            type: string
+        "401":
+          description: Unauthorized - wrong password or invalid credentials
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Авторизация пользователя
+      tags:
+      - authentication
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует нового пользователя с email и паролем.
+      parameters:
+      - description: Registration details
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/types.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: User created successfully
+          schema:
+            type: string
+        "400":
+          description: Bad request - validation error
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Регистрация нового пользователя
+      tags:
+      - authentication
+  /renew:
+    post:
+      consumes:
+      - application/json
+      description: Обновляет access token, если предоставлен действующий refresh token.
+      parameters:
+      - description: |-
+          Authorization header with Bearer token
+           Напишите сюда 'Bearer access_token'
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: Request with refresh token
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/types.RenewAccessTokenReq'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Access token successfully renewed
+          schema:
+            $ref: '#/definitions/types.RenewAccessTokenResp'
+        "400":
+          description: Bad request - invalid refresh token format
+          schema:
+            type: string
+        "401":
+          description: Unauthorized - invalid or expired refresh token
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Обновление access token с использованием refresh token
+      tags:
+      - authentication
+swagger: "2.0"
